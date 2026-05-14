@@ -1,0 +1,39 @@
+<h1>注文履歴</h1>
+
+<h2>購入した注文</h2>
+<table>
+  <tr><th>注文ID</th><th>書籍</th><th>状態</th><th>金額</th><th>操作</th></tr>
+  <% @purchases.each do |o| %>
+    <tr>
+      <td><%= link_to o.id, order_path(o) %></td>
+      <td><%= o.book.title %></td>
+      <td><%= o.status %></td>
+      <td>¥<%= o.total_price %></td>
+      <td>
+        <% if o.status == "shipped" %>
+          <%= button_to "受取完了", receive_order_path(o), method: :post %>
+        <% end %>
+        <% if o.reviewable? %>
+          <%= link_to "レビュー", new_review_path(order_id: o.id) %>
+        <% end %>
+      </td>
+    </tr>
+  <% end %>
+</table>
+
+<h2>あなたが出品した本の販売</h2>
+<table>
+  <tr><th>書籍</th><th>状態</th><th>操作</th></tr>
+  <% @sales.each do |b| %>
+    <tr>
+      <td><%= b.title %></td>
+      <td><%= b.status_label %></td>
+      <td>
+        <%# [BAD] book→order の n+1。 %>
+        <% if b.order && b.order.status == "paid" %>
+          <%= button_to "発送する", ship_order_path(b.order), method: :post %>
+        <% end %>
+      </td>
+    </tr>
+  <% end %>
+</table>

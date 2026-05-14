@@ -1,0 +1,24 @@
+<h1>注文 #<%= @order.id %></h1>
+<p>書籍: <%= link_to @order.book.title, book_path(@order.book) %></p>
+<p>購入者: <%= @order.buyer.name %></p>
+<p>出品者: <%= @order.seller.name %></p>
+<p>状態: <%= @order.status %></p>
+<p>合計金額: ¥<%= @order.total_price %> (内 税 ¥<%= @order.tax %>, 送料 ¥<%= @order.shipping_fee %>)</p>
+<p>支払日時: <%= @order.paid_at %></p>
+<p>発送日時: <%= @order.shipped_at %></p>
+<p>受取日時: <%= @order.received_at %></p>
+
+<% if logged_in? && @order.buyer_id == current_user.id %>
+  <% if @order.status == "shipped" %>
+    <%= button_to "受取完了", receive_order_path(@order), method: :post %>
+  <% end %>
+  <% if @order.reviewable? %>
+    <%= link_to "レビューを書く", new_review_path(order_id: @order.id) %>
+  <% end %>
+<% end %>
+
+<% if logged_in? && @order.book.seller_id == current_user.id %>
+  <% if @order.status == "paid" %>
+    <%= button_to "発送する", ship_order_path(@order), method: :post %>
+  <% end %>
+<% end %>
