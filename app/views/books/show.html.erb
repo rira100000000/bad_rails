@@ -1,0 +1,35 @@
+<h1><%= @book.title %></h1>
+
+<p>著者: <%= @book.author %></p>
+<p>状態: <%= @book.condition %></p>
+<p>カテゴリ: <%= @book.category&.name %></p>
+<p>ISBN: <%= @book.isbn %></p>
+<p>説明: <%= simple_format(@book.description) %></p>
+
+<%# [BAD] 価格表示が index と show でフォーマットが違う。 %>
+<p class="price">価格: <%= @book.display_price %> / 税込 <%= number_to_currency(@book.price_with_tax, unit: "¥") %></p>
+<p>送料: ¥<%= @book.shipping_fee %> / 合計: ¥<%= @book.total_price %></p>
+
+<p>出品者: <%= link_to @book.seller.name, user_path(@book.seller) %>
+  (評価 <%= @book.seller.average_rating %>)
+</p>
+
+<p>ステータス: <%= @book.status_label %></p>
+
+<% if logged_in? %>
+  <% if @book.status == "listed" && @book.seller_id != current_user.id %>
+    <%# [BAD] view で status の文字列比較を直書きしている。 status_label と整合性を取りづらい。 %>
+    <%= button_to "購入する", buy_book_path(@book), method: :post %>
+  <% end %>
+
+  <% if @favorited %>
+    <%= button_to "お気に入り解除", unfavorite_book_path(@book), method: :delete %>
+  <% else %>
+    <%= button_to "お気に入りに追加", favorite_book_path(@book), method: :post %>
+  <% end %>
+
+  <% if @book.seller_id == current_user.id %>
+    <%= link_to "編集", edit_book_path(@book) %>
+    <%= button_to "削除", book_path(@book), method: :delete, data: { confirm: "本当に削除しますか?" } %>
+  <% end %>
+<% end %>

@@ -1,0 +1,23 @@
+<h1><%= @user.display_name %> さんのページ</h1>
+
+<p>評価: <%= @user.rating_label %> (<%= @user.average_rating %>)</p>
+
+<h2>統計</h2>
+<table>
+  <tr><th>出品中</th><td><%= @stats[:listed] %></td></tr>
+  <tr><th>売却済</th><td><%= @stats[:sold] %></td></tr>
+  <tr><th>累計売上(税込換算)</th><td>¥<%= @stats[:sales] %></td></tr>
+  <tr><th>累計購入額</th><td>¥<%= @stats[:spent] %></td></tr>
+</table>
+
+<h2>出品中の書籍</h2>
+<% @listings.each do |b| %>
+  <div class="book-card">
+    <%= link_to b.title, book_path(b) %> /
+    <%= b.status_label %> /
+    <%# [BAD] view で b.order の有無を判定。 N+1 を量産。 %>
+    <% if b.order %>
+      購入者: <%= b.order.buyer.name %>
+    <% end %>
+  </div>
+<% end %>

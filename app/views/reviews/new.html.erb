@@ -1,0 +1,11 @@
+<h1>レビュー投稿: <%= @order.book.title %></h1>
+<%= form_with url: reviews_path, local: true do %>
+  <%= hidden_field_tag :order_id, @order.id %>
+  <div class="field">評価 (1-5)<br>
+    <%= select_tag "review[rating]", options_for_select([1,2,3,4,5], 5) %>
+  </div>
+  <div class="field">コメント<br>
+    <%= text_area_tag "review[comment]" %>
+  </div>
+  <%= submit_tag "投稿" %>
+<% end %>
