@@ -1,0 +1,19 @@
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      # ソースを bind mount するのでホスト側の編集が即反映される
+      - .:/rails
+      # gem は名前付き volume に置き、ホスト側 .bundle/ を汚さない
+      - bundle:/usr/local/bundle
+    environment:
+      RAILS_ENV: development
+      # WSL2 等で file watcher が効かない環境向け
+      RAILS_DEV_WEBSERVER_LISTEN_HOST: 0.0.0.0
+    stdin_open: true
+    tty: true
+
+volumes:
+  bundle:

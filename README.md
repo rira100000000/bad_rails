@@ -1,6 +1,6 @@
 # BadBooks — 設計勉強会用 "あえて悪い" Rails アプリ
 
-3年目 Rails エンジニア4人で **設計の勉強会** をするための題材アプリです。
+ **設計の勉強会** をするための題材アプリです。
 ドメインは中古書籍フリマで、機能としては動きますが、内部設計は **意図的に悪く** 書いてあります。
 
 > ⚠️ **このリポジトリのコードを実プロダクトの参考にしないでください。** ほぼ全てがアンチパターンです。
@@ -29,11 +29,34 @@ grep -rn "\[BAD-" app/ db/ spec/ config/
 
 ## セットアップ
 
+### ローカル (Ruby 3.4.8)
+
 ```bash
 bundle install
 bin/rails db:create db:migrate db:seed
 bin/rails server
 # → http://localhost:3000
+```
+
+### Docker
+
+勉強会で各自のローカルに Ruby を入れたくない場合はこちら。 開発モード(`RAILS_ENV=development`) で起動します。
+
+```bash
+docker compose up --build
+# → http://localhost:3000
+```
+
+- 初回起動時に `db:prepare`(schema load + seed)が走るので、 seed ユーザでそのままログイン可。
+- ソースは bind mount されているのでホスト側の編集が即反映される。
+- DB(SQLite) はホストの `storage/` に作られる。 リセットしたければ `storage/development.sqlite3` を削除して再起動。
+- gem は名前付き volume `bundle` に入る。 Gemfile を変更したら `docker compose build` で入れ直す。
+
+コンテナ内でコマンドを叩きたいとき:
+
+```bash
+docker compose exec web bin/rails console
+docker compose exec web bundle exec rspec
 ```
 
 ### テスト
