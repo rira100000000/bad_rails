@@ -1,5 +1,5 @@
 class OrderMailer < ApplicationMailer
-  # [BAD] テンプレが共通化されておらず、 view 側も似た文面で散らかる。
+  # [BAD-077]
   def paid(order)
     @order = order
     mail(to: order.buyer.email, subject: "ご購入ありがとうございます")

@@ -1,5 +1,4 @@
-# [BAD] Order だけど、 ほとんどのロジックは OrdersController に逃げている。
-# 一方で状態管理メソッドはここにもあり、Controller と二重実装。
+# [BAD-026]
 class Order < ApplicationRecord
   belongs_to :book
   belongs_to :buyer, class_name: "User"
@@ -9,26 +8,27 @@ class Order < ApplicationRecord
 
   validates :status, inclusion: { in: STATUSES }
 
-  # [BAD] スコープと文字列リテラルが混在。 controller 側でも status 文字列を直書き比較。
+  # [BAD-027]
   scope :paid,     -> { where(status: "paid") }
   scope :shipped,  -> { where(status: "shipped") }
   scope :received, -> { where(status: "received") }
 
-  # [BAD] after_create で副作用が走る。 トランザクション境界が曖昧。
+  # [BAD-028]
   after_create :send_paid_email
+  # [BAD-029]
   after_create :create_buyer_notification
 
   def seller
     book.seller
   end
 
+  # [BAD-030]
   def reviewable?
-    # [BAD] reviewable? が複数の場所に散らかっている(View, Controller, Model)。
     status == "received" && review.nil?
   end
 
+  # [BAD-031]
   def cancel!
-    # [BAD] cancel するときに book を listed に戻す。 トランザクション無し。
     self.status = "cancelled"
     self.save!
     book.update!(status: "listed")

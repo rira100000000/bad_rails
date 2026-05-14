@@ -6,7 +6,7 @@
 <p>ISBN: <%= @book.isbn %></p>
 <p>説明: <%= simple_format(@book.description) %></p>
 
-<%# [BAD] 価格表示が index と show でフォーマットが違う。 %>
+<%# [BAD-081] %>
 <p class="price">価格: <%= @book.display_price %> / 税込 <%= number_to_currency(@book.price_with_tax, unit: "¥") %></p>
 <p>送料: ¥<%= @book.shipping_fee %> / 合計: ¥<%= @book.total_price %></p>
 
@@ -17,8 +17,8 @@
 <p>ステータス: <%= @book.status_label %></p>
 
 <% if logged_in? %>
+  <%# [BAD-082] %>
   <% if @book.status == "listed" && @book.seller_id != current_user.id %>
-    <%# [BAD] view で status の文字列比較を直書きしている。 status_label と整合性を取りづらい。 %>
     <%= button_to "購入する", buy_book_path(@book), method: :post %>
   <% end %>
 

@@ -1,6 +1,6 @@
 require "rails_helper"
 
-# [BAD] before ブロックが巨大化していて、 各 it が何の前提なのか読みづらい — というアンチパターン例も少し残している。
+# [BAD-087]
 RSpec.describe User, type: :model do
   let(:user) { create(:user) }
 

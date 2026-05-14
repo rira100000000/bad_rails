@@ -6,7 +6,7 @@ class ReviewsController < ApplicationController
 
   def create
     order = Order.find(params[:order_id])
-    # [BAD] 認可も状態チェックも無い。 received でない注文にもレビューが書ける。
+    # [BAD-070]
     review = Review.new(
       order_id: order.id,
       reviewer_id: current_user.id,

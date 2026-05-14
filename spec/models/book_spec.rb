@@ -52,7 +52,6 @@ RSpec.describe Book, type: :model do
       expect(Book.search("").count).to eq(2)
     end
 
-    # [BAD example] このテストは「現状の挙動」を確認しているだけで、
-    # SQL Injection の脆弱性まで気付かない。レビュアー視点だと "; DROP TABLE などを試してみてほしい。
+    # [BAD-088]
   end
 end

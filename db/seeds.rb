@@ -1,4 +1,4 @@
-# 設計的な悪い例: seed すらビジネスロジックが散らかっている
+# [BAD-090]
 puts "Seeding..."
 
 Notification.delete_all
