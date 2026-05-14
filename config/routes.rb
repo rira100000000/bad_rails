@@ -3,19 +3,19 @@ Rails.application.routes.draw do
 
   root "books#index"
 
-  # [BAD] 認証関連が member の collection アクションで散らかっている。 sessions リソースとして切り出すべき。
+  # [BAD-085]
   get    "/signup",   to: "users#new",       as: :signup
   post   "/signup",   to: "users#create"
   get    "/login",    to: "sessions#new",    as: :login
   post   "/login",    to: "sessions#create"
   delete "/logout",   to: "sessions#destroy", as: :logout
 
-  # [BAD] resources を使わず手書きで列挙 → ルートが膨らんでメンテ困難。
+  # [BAD-086]
   resources :books do
     member do
       post :favorite
       delete :unfavorite
-      post :buy           # [BAD] purchase は別リソースにすべき
+      post :buy
     end
   end
 

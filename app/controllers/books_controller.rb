@@ -2,7 +2,7 @@ class BooksController < ApplicationController
   skip_before_action :require_login, only: [:index, :show]
 
   def index
-    # [BAD] 検索条件の組み立てを Controller で文字列補間。 SQL Injection の余地。
+    # [BAD-048]
     @books = Book.where(status: "listed")
     if params[:q].present?
       q = params[:q]
@@ -18,7 +18,7 @@ class BooksController < ApplicationController
       @books = @books.where("price <= ?", params[:max_price].to_i)
     end
     @books = @books.order(created_at: :desc)
-    # [BAD] includes してない → view で N+1 確定。
+    # [BAD-049]
     @categories = Category.all
   end
 
@@ -33,7 +33,7 @@ class BooksController < ApplicationController
   end
 
   def create
-    # [BAD] strong params なし。 seller_id を params から渡されると別ユーザに偽装可能。
+    # [BAD-050]
     attrs = params[:book].to_unsafe_h
     attrs[:seller_id] = current_user.id if attrs[:seller_id].blank?
     @book = Book.new(attrs)
@@ -48,13 +48,13 @@ class BooksController < ApplicationController
 
   def edit
     @book = Book.find(params[:id])
-    # [BAD] 認可チェックがない。 他人の出品も編集できる。
+    # [BAD-051]
     @categories = Category.all
   end
 
   def update
     @book = Book.find(params[:id])
-    # [BAD] こちらも認可なし & strong params なし。
+    # [BAD-051]
     if @book.update(params[:book].to_unsafe_h)
       flash[:notice] = "更新しました"
       redirect_to @book
@@ -66,13 +66,14 @@ class BooksController < ApplicationController
 
   def destroy
     @book = Book.find(params[:id])
+    # [BAD-051]
     @book.destroy
     redirect_to books_path, notice: "削除しました"
   end
 
   def favorite
     book = Book.find(params[:id])
-    # [BAD] 重複登録チェックなし。 何度でも favorite できてしまう。
+    # [BAD-052]
     current_user.favorites.create!(book_id: book.id)
     redirect_to book, notice: "お気に入りに追加しました"
   end
@@ -83,15 +84,14 @@ class BooksController < ApplicationController
     redirect_to book, notice: "お気に入りを外しました"
   end
 
-  # [BAD] このアクションが OrdersController#create とほぼ同じ処理をしている。
-  # しかも税計算・送料計算・通知作成のロジックが OrdersController と微妙に違う。
+  # [BAD-053]
   def buy
     book = Book.find(params[:id])
     if book.seller_id == current_user.id || book.status != "listed"
       redirect_to book, alert: "購入できません" and return
     end
-    # [BAD] 税率・送料が OrdersController#create と異なる。 結果、buy 経由と orders#create 経由で金額が変わる。
-    tax = (book.price * 0.08).to_i  # [BAD] 8%! OrdersController は 10%。
+    # [BAD-054]
+    tax = (book.price * 0.08).to_i
     shipping = book.price >= 3000 ? 0 : 400
     total = book.price + tax + shipping
     order = Order.create!(

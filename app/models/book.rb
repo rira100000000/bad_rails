@@ -1,30 +1,30 @@
-# [BAD] Book も Fat Model 化していて、商品 / 在庫 / 出品 / 価格計算 / 表示整形 を一手に。
+# [BAD-016]
 class Book < ApplicationRecord
   belongs_to :seller, class_name: "User"
   belongs_to :category, optional: true
   has_one  :order, dependent: :nullify
   has_many :favorites, dependent: :destroy
 
-  # [BAD] status は ただの String。 enum も AASM も使わず文字列比較で全レイヤーに散らかる。
+  # [BAD-017]
   STATUSES = %w[listed sold shipped received cancelled].freeze
 
   validates :title,  presence: true
   validates :price,  numericality: { greater_than_or_equal_to: 0 }
   validates :status, inclusion: { in: STATUSES }
 
-  # [BAD] scope と class メソッド、 where がそこら中に書かれていて検索条件の根拠が複数。
+  # [BAD-018]
   scope :listed, -> { where(status: "listed") }
   scope :recent, -> { order(created_at: :desc) }
 
-  # [BAD] after_save で勝手にメール送信。 値段更新するたびに seller にメールが飛ぶ。
+  # [BAD-019]
   after_save :notify_price_changed, if: :saved_change_to_price?
 
-  # [BAD] 税計算が Book にも、 User にも、 OrdersController にも、 View にも書かれている。 DRY 違反。
+  # [BAD-020]
   def price_with_tax
     (price * 1.1).to_i
   end
 
-  # [BAD] 送料計算その1。Book にある。 OrdersController と View にも別実装。
+  # [BAD-021]
   def shipping_fee
     if price >= 5000
       0
@@ -39,11 +39,12 @@ class Book < ApplicationRecord
     price_with_tax + shipping_fee
   end
 
-  # [BAD] 表示整形が Model に。 数値→文字列変換は Helper で。
+  # [BAD-022]
   def display_price
     "¥#{price.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
   end
 
+  # [BAD-023]
   def status_label
     case status
     when "listed"    then "出品中"
@@ -55,7 +56,7 @@ class Book < ApplicationRecord
     end
   end
 
-  # [BAD] 状態遷移メソッドはあるが、 OrdersController でも status を直書きしている箇所がある(整合性なし)。
+  # [BAD-024]
   def mark_as_sold!
     self.status = "sold"
     self.save!
@@ -71,10 +72,9 @@ class Book < ApplicationRecord
     self.save!
   end
 
-  # [BAD] 検索を Book.search のクラスメソッドで提供しているが、 BooksController#index でも別実装で SQL を組んでいる。
+  # [BAD-025]
   def self.search(keyword)
     return all if keyword.blank?
-    # [BAD] SQL Injection の余地あり! 文字列補間で LIKE を組んでいる。
     where("title LIKE '%#{keyword}%' OR author LIKE '%#{keyword}%'")
   end
 

@@ -28,8 +28,7 @@ RSpec.describe "Orders flow", type: :request do
     expect(book.reload.status).to eq("sold")
   end
 
-  # [BAD example] 同じ "購入" のシナリオが BooksController#buy と OrdersController#create の2経路存在し、
-  # 税率・送料が異なる。 リファクタリングの題材として最適。
+  # [BAD-089]
   it "two purchase paths produce different totals (bug surface)" do
     login_as(buyer)
     book2 = create(:book, seller: seller, price: 1000)

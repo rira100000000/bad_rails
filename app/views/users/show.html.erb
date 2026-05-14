@@ -15,7 +15,7 @@
   <div class="book-card">
     <%= link_to b.title, book_path(b) %> /
     <%= b.status_label %> /
-    <%# [BAD] view で b.order の有無を判定。 N+1 を量産。 %>
+    <%# [BAD-083] %>
     <% if b.order %>
       購入者: <%= b.order.buyer.name %>
     <% end %>
