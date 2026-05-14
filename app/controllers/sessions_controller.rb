@@ -1,4 +1,3 @@
-# [BAD] login 失敗時のメッセージが具体的すぎる(セキュリティ的にも問題)。
 class SessionsController < ApplicationController
   skip_before_action :require_login
 
@@ -6,9 +5,10 @@ class SessionsController < ApplicationController
   end
 
   def create
-    # [BAD] User.authenticate は使わず find_by + authenticate を直書き。 重複した認証経路。
+    # [BAD-044]
     user = User.find_by(email: params[:email])
     if user.nil?
+      # [BAD-045]
       flash.now[:alert] = "そのメールアドレスは登録されていません"
       render :new, status: :unprocessable_entity
       return
@@ -18,6 +18,7 @@ class SessionsController < ApplicationController
       flash[:notice] = "ログインしました"
       redirect_to root_path
     else
+      # [BAD-045]
       flash.now[:alert] = "パスワードが違います"
       render :new, status: :unprocessable_entity
     end

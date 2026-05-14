@@ -6,7 +6,7 @@ class UsersController < ApplicationController
   end
 
   def create
-    # [BAD] strong parameters を使っていない。 admin 等の重要属性まで mass assignment 可能。
+    # [BAD-046]
     @user = User.new(params[:user].permit!)
     if @user.save
       session[:user_id] = @user.id
@@ -19,7 +19,7 @@ class UsersController < ApplicationController
 
   def show
     @user = User.find(params[:id])
-    # [BAD] N+1 マシマシ。 each で listings 全部読み、 各 book.order を読み、 reviews も読む。
+    # [BAD-047]
     @listings = @user.listings.order(created_at: :desc)
     @stats = @user.stats
   end

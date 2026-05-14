@@ -29,7 +29,7 @@
       <td><%= b.title %></td>
       <td><%= b.status_label %></td>
       <td>
-        <%# [BAD] book→order の n+1。 %>
+        <%# [BAD-084] %>
         <% if b.order && b.order.status == "paid" %>
           <%= button_to "発送する", ship_order_path(b.order), method: :post %>
         <% end %>
